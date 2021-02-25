@@ -1,27 +1,27 @@
-// Código criado por Tiago Costa de Carvalho
-// Ano de criação: 2020
+// Code created by Tiago Costa de Carvalho
+// Date of creation: 10/2020
 //
-// Grande ajuda da comunidade da Adobe para pequenas resoluções sobre uso dos objetos e modelos do Photoshop :)
+// Within de great help from Adobe Community from little tweeks from other codes and doubts :)
 //
-// Esse script tem por idéia ser uma versão simplificada do script "Contact Sheet II" já que mesmo que ele cria uma janela mais amigável ao usuário, o mesmo
-// não permite alterações posteriores ou mesmo complexifica muito como alterar coisas que achei cruciais para a melhor manipulação das imagens.
+// This code works like "Contact Sheet II" but it works in a more straightfoward method were it create the layout for a normal A4 print. 
+// It do not allow further editing in Photoshop interface besides a name that goes at the first page. ( or it could go blank anyways );
 
-// Ele usa a mesma idéia da criação de células num plano base com um tamanho pré-determinado, em seguida, abre um prompt pedindo o caminho de uma pasta para
-// gerar a lista de importações.
+// It uses the same idea of creating a series of cells based on the size of the document. As it follows, it opens a prompt asking for the path where the images are.
 
-// As páginas são todas geradas automaticamente, e ao final da lista de arquivos, ele condensa todas as páginas na página inicial,
-// Usará o caminho do molde da página ( CHECAR A FUNÇÃO >>>IMPORTA<<< )
-// Pedirá o nome que vai ser inserido no Cabeçalho
-// Vai multiplicar o molde da página para baixo para criar as pranchetas - Ao final do processo, estará pronto o arquivo já perfeitamente pronto para
-// usar a exportação de pranchetas para PDF do próprio Photoshop
+// Pages are all generated automatically and at the end, it joins all the pages to the initial document, puts that name of the designer ( or blank if wanted )
+// and also import a model sheet and a logo if is desired to make the overview board more appropriated for a business to use; 
+// TODO: use a "import" command for calling the build-in script for exporting all worktables to pdf
+
+#target photoshop
 
 var startRulerUnits = app.preferences.rulerUnits;
 
 app.preferences.rulerUnits = Units.PIXELS;
 
-/////////////////////////////////////VARIÁVEIS GLOBAIS//////////////////////////////////////////
+/////////////////////////////////////GLOBAL VARIABLES//////////////////////////////////////////
+// note: variables will go all in portuguese name
 
-// DIMENSÕES FIXAS DA PÁGINA
+// A4 sheet dimensions in pixels ( at 300 dpi )
 var TamanhoA4 = [2480, 3308];
 var MM300DPI = 12;
 
@@ -31,7 +31,7 @@ var margem = MM300DPI * 3;
 
 var TamanhoA4Total = altura + 200;
 
-// NÚMERO DE REFERÊNCIAS POR PÁGINA
+// Number of images per page
 var NUMColunas = 3;
 var NUMLinhas = 3;
 
@@ -46,21 +46,21 @@ var nome;
 
 var arial = app.fonts.getByName("ArialMT");
 
-//NOMEANDO COLUNAS PARA ACESSIBILIDADE POSTERIOR
+//Naming columns for further access
 for (i = 0; i < NUMColunas; i++) {
   var texto = "col" + [i];
   colunas.push(texto);
 }
 
-//NOMEANDO LINHAS PARA ACESSIBILIDADE POSTERIOR
+//Naming lines for further access
 for (i = 0; i < NUMLinhas; i++) {
   var texto = "lin" + [i];
   colunas.push(texto);
 }
 
-//////////////////////////////////////FUNÇÕES///////////////////////////////////////////////////
+//////////////////////////////////////FUNCTIONS///////////////////////////////////////////////////
 
-// Apenas abre o arquivo em função do caminho
+// Opens a document within a path
 function Abre(caminho) {
   var idOpn = charIDToTypeID("Opn ");
   var desc140 = new ActionDescriptor();
@@ -75,7 +75,8 @@ function Abre(caminho) {
   executeAction(idOpn, desc140, DialogModes.NO);
 }
 
-// Faz o texto de nome do arquivo que foi importado, necessitando receber um nome e uma camada
+// Creates a full layer of text using the opened document's name, the inputs are: name of the document, name of the text layer and the addictional info based in some aspect of the image. 
+// note: In this version, it uses the size in pixels to check the width of the image to categorize in what thing are going to be printed; 
 function FazTexto(nome, camada, base) {
   var nomeSemExtensao = nome.split(".")[0];
 
@@ -101,8 +102,8 @@ function FazTexto(nome, camada, base) {
   conteudo.fauxBold = true;
 }
 
-//Adiciona, em função da largura em PX do arquivo, de qual categoria ele é:
-//Retorna no nome para ser inserido na função "FazTexto"
+//Adds depending info to the name that goes under the image depending on the width of the opened image.
+//Returns the name to the function "FazTexto" uses it.
 function ChecaBase() {
 
   app.preferences.rulerUnits = Units.PIXELS;
@@ -110,105 +111,15 @@ function ChecaBase() {
   var larguraEstampa = app.activeDocument.width;
   var nomeBase;
 
-  if (larguraEstampa == 5896) {
-    nomeBase = "Prata";
-  } else {
-    if (larguraEstampa == 4124) {
-      nomeBase = "Pontos";
-    } else {
-      if (larguraEstampa == 8249) {
-        nomeBase = "Pontos";
-      } else {
-        if (larguraEstampa == 3827) {
-          nomeBase = "Linho";
-        } else {
-          if (larguraEstampa == 3855) {
-            nomeBase = "Seda";
-          } else {
-            if (larguraEstampa >= 5272 && larguraEstampa <= 5273) {
-              nomeBase = "Palha";
-            } else {
-              if (larguraEstampa >= 4506 && larguraEstampa <= 4508) {
-                nomeBase = "Jateado";
-              } else {
-                if (larguraEstampa >= 6008 && larguraEstampa <= 6010) {
-                  nomeBase = "Jateado";
-                } else {
-                  if (larguraEstampa == 7512) {
-                    nomeBase = "Jateado";
-                  } else {
-                    if (larguraEstampa >= 9014 && larguraEstampa <= 9015) {
-                      nomeBase = "Jateado";
-                    } else {
-                      if (larguraEstampa >= 12018 && larguraEstampa <= 12019) {
-                        nomeBase = "Jateado";
-                      } else {
-                        if (
-                          larguraEstampa >= 10516 &&
-                          larguraEstampa <= 10517
-                        ) {
-                          nomeBase = "Jateado";
-                        } else {
-                          if (
-                            larguraEstampa >= 1501 &&
-                            larguraEstampa <= 1503
-                          ) {
-                            nomeBase = "Jateado";
-                          } else {
-                            if (
-                              larguraEstampa >= 3797 &&
-                              larguraEstampa <= 3799
-                            ) {
-                              nomeBase = "Vinil";
-                            } else {
-                              if (
-                                larguraEstampa >= 7596 &&
-                                larguraEstampa <= 7598
-                              ) {
-                                nomeBase = "Vinil";
-                              } else {
-                                if (
-                                  larguraEstampa >= 11394 &&
-                                  larguraEstampa <= 11396
-                                ) {
-                                  nomeBase = "Vinil";
-                                } else {
-                                  if (
-                                    larguraEstampa >= 7908 &&
-                                    larguraEstampa <= 7910
-                                  ) {
-                                    nomeBase = "Palha";
-                                  } else {
-                                    nomeBase = "";
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+  if(larguraEstampa =! 0) {
+    nomeBase = ""
   }
 
   return nomeBase;
 }
 
-// Redimensiona o arquivo aberto para a largura correta - ou altura, caso a maior dimensão do arquivo seja;
-// Indice ---> input vai ser dado pelo FOR
-// Cria uma seleção no arquivo inteiro
-// Copia tudo para a Área de seleção
-// Fecha e volta para a página aberta
-// Cola o arquivo copiado na página
-// Adiciona o texto com o nome + informações extras definidas na função "ChecaBase"
-// Insere o texto por conta do escopo da abertura do arquivo
+// The image handler opens the image, make the necessary transformations to fit in the overview board
+// Indice ---> input important for the engine to work
 function ArquivoHANDLER(indice, posXCelula, posYCelula) {
   
   var nomeBase = ChecaBase();
@@ -246,12 +157,12 @@ function ArquivoHANDLER(indice, posXCelula, posYCelula) {
   FazTexto(nome, nomeCamada, nomeBase);
 }
 
-// Cria uma nova página A4
+// Create an A4 sheet
 function CriaDoc(indice) {
   var novoDoc = app.documents.add(largura, altura, 300, "PaginaBoard" + indice);
 }
 
-// Entende a largura e altura das células da imagem
+// Calculates the size of lines and columns
 function PegaColuna() {
   var LarguraColuna = largura / colunas.length;
   var AlturaLinha = altura / linhas.length;
@@ -259,7 +170,7 @@ function PegaColuna() {
   return LarguraColuna, AlturaLinha;
 }
 
-//Cria o grid na página
+//Creates a grid
 function FazGrid(colunas, linhas) {
   var idnewGuideLayout = stringIDToTypeID("newGuideLayout");
   var desc178 = new ActionDescriptor();
@@ -294,7 +205,7 @@ function FazGrid(colunas, linhas) {
   executeAction(idnewGuideLayout, desc178, DialogModes.NO);
 }
 
-// Pega a posição da celula
+// Get the position of a cell
 function posCelula(indiceX, indiceY) {
   posicao = [];
   CelulaBounds1 = [
@@ -322,7 +233,7 @@ function posCelula(indiceX, indiceY) {
   return posicao;
 }
 
-// Seleciona a Mascara que o Photoshop cria automaticamente
+// The following two functions works like a "prevent default" to the auto clipping mask that photoshop create when you paste an image in a predefined selection. This is made because images were invisible when pasted.
 function SelecionaMascara() {
   var idslct = charIDToTypeID("slct");
   var desc2188 = new ActionDescriptor();
@@ -337,8 +248,6 @@ function SelecionaMascara() {
   desc2188.putBoolean(idMkVs, false);
   executeAction(idslct, desc2188, DialogModes.NO);
 }
-
-// Exclui a mascara que o Photoshop cria automaticamente
 function ExcluiMascara() {
   var idDlt = charIDToTypeID("Dlt ");
   var desc2186 = new ActionDescriptor();
@@ -352,6 +261,7 @@ function ExcluiMascara() {
   executeAction(idDlt, desc2186, DialogModes.NO);
 }
 
+//Duplicate an intire page to the initial document
 function DuplicaProInicio(nomeDoc) {
   var idDplc = charIDToTypeID("Dplc");
   var desc15350 = new ActionDescriptor();
@@ -374,8 +284,8 @@ function DuplicaProInicio(nomeDoc) {
   executeAction(idDplc, desc15350, DialogModes.NO);
 }
 
-// Importa molde da página
-// Sempre lembrar de colocar o caminho correto para o arquivo do molde da página
+// Imports the page model
+// Check for the right path for the page model
 function Importa(caminho) {
   var idPlc = charIDToTypeID("Plc ");
   var desc15820 = new ActionDescriptor();
@@ -400,7 +310,7 @@ function Importa(caminho) {
   executeAction(idPlc, desc15820, DialogModes.NO);
 }
 
-//Rasteriza a layer atual
+//Raster any special object or text layer
 function Rasteriza() {
   var idrasterizeLayer = stringIDToTypeID("rasterizeLayer");
   var desc11701 = new ActionDescriptor();
@@ -414,7 +324,7 @@ function Rasteriza() {
   executeAction(idrasterizeLayer, desc11701, DialogModes.NO);
 }
 
-//Move a camada para a posição acima da página base para incorporar em todas as páginas
+//Reorganize the layer in the layer set;
 function MOVE(Pos) {
   var idmove = charIDToTypeID("move");
   var desc16925 = new ActionDescriptor();
@@ -441,7 +351,7 @@ function MOVE(Pos) {
   executeAction(idmove, desc16925, DialogModes.NO);
 }
 
-//Insere um texto com base numa caixa de diálogo que você escreve o quer que entre
+//prompt for inserting the name in de overview board
 function Cabecalho(tipo, X, Y) {
   var input = prompt("Insira o nome do(a)" + tipo, " ");
 
@@ -457,7 +367,7 @@ function Cabecalho(tipo, X, Y) {
   conteudo.size = 18;
 }
 
-//Chama a criação de um texto usando o que vai ser escrito e a posição a ser colocada no canvas
+//Create any kind of text and gives its position
 function ChamaTexto(text, X, Y) {
   var camadaTexto = app.activeDocument.artLayers.add();
   camadaTexto.kind = LayerKind.TEXT;
@@ -471,8 +381,8 @@ function ChamaTexto(text, X, Y) {
   conteudo.size = 18;
 }
 
-//Transforma a camada alvo em uma prancheta
-//Recebe o ID que é o nome da camada que vai virar a prancheta - Note que as dimensões da prancheta viram as dimensões dessa camada base
+//Turns a layer in to a worktable set
+//This is importat cause is easy to export worktables to PDF and when created using a layer, the dimensions always goes correct for print.
 function FazPrancheta(ID) {
   var idMk = charIDToTypeID("Mk  ");
   var desc17011 = new ActionDescriptor();
@@ -503,33 +413,33 @@ function FazPrancheta(ID) {
   executeAction(idMk, desc17011, DialogModes.NO);
 }
 
-/////////////////////////////////// ROTINA DE EXECUÇÃO ////////////////////////////////
+/////////////////////////////////// RUN TIME ////////////////////////////////
 
-// Retorna um Array de caminhos das estampas da pasta
+// Returns an array of file paths
 var PastaEstampas = Folder.selectDialog("Selecione");
 if (PastaEstampas != null) {
   var listaArquivos = PastaEstampas.getFiles();
 } else {
-  alert("Pasta vazia!");
+  alert("Empty folder!");
 }
 
-//Faz o número de páginas ( adiciona um para dar conta do resto da divisão arredondada pra baixo)
+//Determines the number of times that engine will work
 var NUMPaginas =
   Math.floor(listaArquivos.length / (NUMColunas * NUMLinhas)) + 1;
 
-///////MOTOR
+///////ENGINE
 
-//FATOR DE POSICAO
+//Position factor
 var posColuna = 0;
 var posLinha = 0;
 
-// Iterador que marca o index da lista de arquivos na inserção das imagens
+// Index of image in a page
 var o = 0;
 
-// Marcador de página
+// Page index
 var indice;
 
-// Iterador de páginas
+// Identify the page
 var PagID = 0;
 
 while (PagID < NUMPaginas) {
@@ -555,6 +465,11 @@ while (PagID < NUMPaginas) {
   }
 }
 
+//TODO: there's a bug if the number of images on the entire set if perfect divisible by the product of "NUMColunas" and "NUMLinhas" its call an error message and breaks at this point.
+
+/////////////////////// END OF ENGINE //////////////////////////
+
+//////////////////////
 app.activeDocument.flatten();
 
 var TodosDocumentos = app.documents.length;
@@ -593,10 +508,10 @@ for (j = 1; j < PagID; j++) {
   );
 }
 
-//Parte final do script em que produz as pranchetas à serem exportadas em PDF
+//Final part where worktables are made
 
 Importa(
-  "D:\\Creative Cloud\\Creative Cloud Files\\Branco\\PaginaBoard_Contrato.tif"
+  // ************************************************PATH TO THE MODEL SHEET************************************************************
 );
 
 Rasteriza();
@@ -610,7 +525,10 @@ app.activeDocument.activeLayer.blendMode = BlendMode.MULTIPLY;
 
 ChamaTexto("artes: " + listaArquivos.length, 1420, 126);
 
-Importa("D:\\Creative Cloud\\Creative Cloud Files\\Branco\\LOGO_BRANCO.psd");
+Importa(
+  // ************************************************PATH TO A LOGO************************************************************
+  // Charge this path with a blank white image if not wanted;
+);
 
 Rasteriza();
 
